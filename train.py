@@ -75,7 +75,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="AutoEncoder")
+    parser = argparse.ArgumentParser()
     parser.add_argument("--cuda", metavar="True", type=bool, default=True,
                         help="change to False if you want to train on CPU (Seriously??)")
     parser.add_argument('--batch_size', type=int, default=8, help="Batch_Size")
