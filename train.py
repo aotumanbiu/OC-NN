@@ -22,7 +22,7 @@ def main(args):
     Transform = transforms.Compose([transforms.Resize((224, 224)),
                                     transforms.ToTensor()])
 
-    train_dataset = datasets.ImageFolder(root="./data/cat_dog/train/", transform=Transform)
+    train_dataset = datasets.ImageFolder(root=args.dataSet, transform=Transform)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
     lens_train = len(train_loader)
 
