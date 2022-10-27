@@ -5,14 +5,13 @@ from torchvision import models
 
 
 class OCN(nn.Module):
-    def __init__(self, num_classes, batchSize=3, isTrain=True):
+    def __init__(self, num_classes, batchSize=3):
 
         backbone = models.vgg16(pretrained=True)
         backbone.classifier = nn.Sequential(*list(backbone.classifier.children())[:2])
 
         super(OCN, self).__init__()
 
-        self.isTrain = isTrain
         self.num_classes = num_classes
 
         self.backbone = backbone
@@ -32,9 +31,7 @@ class OCN(nn.Module):
     def forward(self, inputs):
         labels = None
         ins_labels = None
-        # ------------------------------------------------ #
-        # 　TODO 待优化
-        # ------------------------------------------------ #
+
         # train
         if len(inputs) == 3:
             x, ins_labels, mode = inputs
@@ -44,8 +41,7 @@ class OCN(nn.Module):
 
         x = self.backbone(x)
 
-        self.isTrain = mode
-        if self.isTrain:
+        if mode:
             gaussian = torch.normal(0, 0.1, x.shape)
             if x.is_cuda:
                 gaussian = gaussian.cuda()

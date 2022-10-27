@@ -12,19 +12,17 @@ import argparse
 
 def main(args):
     # 进一步判断 GPU 是否可用
-    if not torch.cuda.is_available():
+    devices = torch.device('cuda')
+    if args.cuda and not torch.cuda.is_available():
         print("CUDA 不可用, 正在用 CUP 执行！！！！")
-        args.cuda = False
+        devices = torch.device('cpu')
 
     # --------------------------------------------------------------------------------------- #
     # 数据集加载
     # --------------------------------------------------------------------------------------- #
-    Transform = transforms.Compose([transforms.Resize((224, 224)),
-                                    transforms.ToTensor()])
-
-    train_dataset = datasets.ImageFolder(root=args.dataSet, transform=Transform)
+    transform = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
+    train_dataset = datasets.ImageFolder(root=args.dataSet, transform=transform)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
-    lens_train = len(train_loader)
 
     # ----------------------------------------------------------------------------------------------- #
     # 这里主要是想看每个epoch对应的测试集的准确率
@@ -36,12 +34,9 @@ def main(args):
     # ----------------------------------------------------------- #
     # 初始化模型
     # ----------------------------------------------------------- #
-    model = OCN(num_classes=2, batchSize=args.batch_size, isTrain=True)
+    model = OCN(num_classes=2, batchSize=args.batch_size)
     criterion = nn.CrossEntropyLoss()
-
-    if args.cuda:
-        model = model.cuda()
-        criterion = criterion.cuda()
+    model.to(devices)
 
     # ------------------------------------------ #
     # 只训练分类器部分
@@ -57,7 +52,6 @@ def main(args):
                         criterion=criterion,
                         optimizer=optimizer,
                         train_loader=train_loader,
-                        train_loader_lens=lens_train,
                         epoch=epoch,
                         total_epoch=args.epoch,
                         Cuda=args.cuda)
@@ -78,7 +72,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--cuda", metavar="True", type=bool, default=True,
                         help="change to False if you want to train on CPU (Seriously??)")
-    parser.add_argument('--batch_size', type=int, default=8, help="Batch_Size")
+    parser.add_argument('--batch_size', type=int, default=1, help="Batch_Size")
     parser.add_argument("--dataSet", type=str, default="./data/cat_dog/train", help="Dataset storage directory")
     parser.add_argument('--epoch', type=int, default=5, help="Total number of training")
     parser.add_argument("--lr", type=float, default=0.0001, help="Adam: learning rate")

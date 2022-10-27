@@ -122,8 +122,8 @@ def CM(num_classes=2):
     return confusion
 
 
-def train_one_epoch(model, criterion, optimizer, train_loader, train_loader_lens, epoch, total_epoch, Cuda):
-    tqdm_iter_train = tqdm(enumerate(train_loader), total=train_loader_lens)
+def train_one_epoch(model, criterion, optimizer, train_loader, epoch, total_epoch, Cuda):
+    tqdm_iter_train = tqdm(enumerate(train_loader))
     tqdm_iter_train.set_description(f"Trian_Epoch [{epoch + 1}/{total_epoch}]")
 
     # accu_num 为预测正确的样本数量
@@ -134,7 +134,6 @@ def train_one_epoch(model, criterion, optimizer, train_loader, train_loader_lens
     # 训练
     model.train()
     for idx, data in tqdm_iter_train:
-
         with torch.no_grad():
             if Cuda:
                 ins = addNoise(data[0].cuda())
